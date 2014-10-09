@@ -44,3 +44,73 @@ def get_point_on_path( t, pts ):
     result = pts[ lands ] + t_in_segment * ( pts[ lands + 1 ] - pts[ lands ] )
     
     return result
+
+def compute_largest_minimum_distance( points1, points2 ):
+    '''
+    Given two sequences of N-dimensional points,
+    computes the Hausdorff distance.
+    The Hausdorff distance is the largest minimum distance between any two points.
+    Returns the distance d, the index into points1, and the index into points2,
+    such that
+        d == distance( points1[ index into points1 ], points2[ index into points2 ] )
+    is the largest minimum distance between any two points.
+    
+    tested
+    '''
+    
+    assert len( points1 ) == len( points2 )
+    points1 = asarray( points1 )
+    points2 = asarray( points2 )
+    assert points1.shape == points2.shape
+    
+    ## allDistSqrs[i][j] is the distance squared from points1[i] to points2[j].
+    allDistSqrs = ( (points2[newaxis,...] - points1[:,newaxis,:])**2 ).sum(-1)
+    ## Hausdorff distance is the longest shortest distance from either to either.
+    dist2 = max( allDistSqrs.min(0).max(), allDistSqrs.min(1).max() )
+    indices = where( allDistSqrs == dist2 )
+    assert len( indices ) > 0
+    
+    points1_index = indices[0][0]
+    points2_index = indices[1][0]
+    dist = sqrt( dist2 )
+    
+    return dist, points1_index, points2_index
+
+def all_distances( points1, points2 ):
+    '''
+    Given a sequence of n K-dimensional points 'points1' and
+    a sequence of m K-dimensional points 'points2',
+    returns an n-by-m matrix where the i,j entry is the distance-squared between
+    the i-th point of 'points1' and the j-th point of 'points2'.
+    
+    To find all distances below some threshold, use:
+        D2 = all_distances( points1, points2 )
+        entries = where( D2 < threshold**2 )
+        for i,j in zip( *entries ):
+            ## Do something with D2[i,j]
+    
+    tested
+    '''
+    
+    points1 = asarray( points1 )
+    points2 = asarray( points2 )
+    
+    allDistSqrs = ( (points2[newaxis,...] - points1[:,newaxis,:])**2 ).sum(-1)
+    assert allDistSqrs.shape == ( len( points1 ), len( points2 ) )
+    return allDistSqrs
+
+def test_all_distances():
+    points1 = [ ( 0,0 ), ( 1,0 ), ( 2,0 ) ]
+    points2 = [ ( 0,0 ), ( 0,1 ) ]
+    
+    threshold = .01
+    
+    D2 = all_distances( points1, points2 )
+    entries = where( D2 < threshold**2 )
+    for i,j in zip( *entries ):
+        print i,j, D2[i,j]
+
+def main():
+    test_all_distances()
+
+if __name__ == '__main__': main()
