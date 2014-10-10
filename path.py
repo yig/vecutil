@@ -45,7 +45,7 @@ def get_point_on_path( t, pts ):
     
     return result
 
-def compute_largest_minimum_distance( points1, points2 ):
+def compute_largest_minimum_distance_between_point_sequences( points1, points2 ):
     '''
     Given two sequences of N-dimensional points,
     computes the Hausdorff distance.
