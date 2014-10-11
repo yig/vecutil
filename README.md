@@ -1,11 +1,13 @@
-Generally useful python code (`vecutil`) for N-dimensional vector math (polylines, rays, spheres, ellipses)
-along with some geometric random sampling functions and miscellaneous routines (`sampling`).
+Generally useful python code (`vecutil`) for N-dimensional vector math (polylines, rays, spheres, ellipses),
+along with some geometric random sampling functions (`sampling`),
+line strip distances (`edge_distances`) and smoothed distance field tracing (`smooth_edge_distances`),
+and miscellaneous routines (`helpers`).
 
 ## Dependencies
 
 * Python >= 2.6 and < 3
 * numpy
-* (optional, for `sampling.friendly_Image*()` functions) PIL (Python Image Library)
+* (optional, for `helpers.friendly_Image*()` functions) PIL (Python Image Library)
 
 ---
 
