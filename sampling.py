@@ -1,5 +1,6 @@
 ## This file is from: ~/Work/TAU/hasm-code/experiments/src/helpers.py
 
+from math import *
 from numpy import *
 
 ## For predictable debugging.
@@ -151,6 +152,42 @@ def reflect_vectors_across_vector( vectors, r ):
     assert result.shape == vectors.shape
     
     return result
+
+def geometric_median_normal( normals ):
+    '''
+    Given a sequence of normalized k-dimensional vectors `normals`,
+    returns the one whose sum of angles with all other normals is smallest.
+    
+    tested
+    >>> geometric_median_normal( [ (0,0,1), (sqrt(2)/2,0,sqrt(2)/2), (-sqrt(2)/2,0,-sqrt(2)/2,0) ] )
+    (1,0,0)
+    '''
+    
+    # normals = asarray( normals )
+    ## The first dimension is the number of normals.
+    ## The second dimension is k.
+    # assert len( normals.shape ) == 2
+    
+    ## Assume input is normalized.
+    # normals = normalize_normals( normals )
+    assert abs( ( asarray( normals )**2 ).sum( axis = 1 ) - 1. ).sum() < 1e-5
+    
+    assert len( normals ) > 0
+    
+    best_normal = None
+    best_distance = None
+    for normal in normals:
+        distance = 0
+        
+        for other_normal in normals:
+            d = acos( min( -1, max( 1, dot( normal, other_normal ) ) ) )
+            distance += d
+        
+        if best_normal is None or distance < best_distance:
+            best_normal = normal
+            best_distance = distance
+    
+    return best_normal
 
 def sample_value( r = None ):
     '''
