@@ -159,35 +159,32 @@ def geometric_median_normal( normals ):
     returns the one whose sum of angles with all other normals is smallest.
     
     tested
-    >>> geometric_median_normal( [ (0,0,1), (sqrt(2)/2,0,sqrt(2)/2), (-sqrt(2)/2,0,-sqrt(2)/2,0) ] )
+    >>> geometric_median_normal( [ (0,0,1), (sqrt(2)/2,0,sqrt(2)/2), (-sqrt(2)/2,0,-sqrt(2)/2) ] )
     (1,0,0)
     '''
     
-    # normals = asarray( normals )
+    normals = asarray( normals )
     ## The first dimension is the number of normals.
     ## The second dimension is k.
-    # assert len( normals.shape ) == 2
+    assert len( normals.shape ) == 2
     
     ## Assume input is normalized.
     # normals = normalize_normals( normals )
-    assert abs( ( asarray( normals )**2 ).sum( axis = 1 ) - 1. ).sum() < 1e-5
+    total_deviation_from_normalized = abs( ( asarray( normals )**2 ).sum( axis = 1 ) - 1. ).sum()
+    if total_deviation_from_normalized > 1e-5:
+        print( "WARNING: geometric_median_normal() called with non-normalized normals. Sum of magnitudes - 1:", total_deviation_from_normalized )
     
     assert len( normals ) > 0
     
-    best_normal = None
-    best_distance = None
-    for normal in normals:
-        distance = 0
-        
-        for other_normal in normals:
-            d = acos( min( -1, max( 1, dot( normal, other_normal ) ) ) )
-            distance += d
-        
-        if best_normal is None or distance < best_distance:
-            best_normal = normal
-            best_distance = distance
-    
-    return best_normal
+    ## Compute all pairs of dot products.
+    ## Take arc cosine to get angles.
+    all_way_angles = arccos( dot( normals, normals.T ).clip(-1,1) )
+    assert all_way_angles.min() >= 0.
+    ## Sum them up.
+    ## The normal corresponding to the smallest value is the one we want.
+    all_way_angles = all_way_angles.sum( axis = 0 )
+    best_normal_index = argmin( all_way_angles )
+    return normals[ best_normal_index ]
 
 def sample_value( r = None ):
     '''
