@@ -5,7 +5,7 @@ and miscellaneous routines (`helpers`).
 
 ## Dependencies
 
-* Python >= 2.6 and < 3
+* Python >= 2.6 (only `vecutil.py` itself has been tested with Python 3.x)
 * numpy
 * (optional, for `helpers.friendly_Image*()` functions) PIL (Python Image Library)
 

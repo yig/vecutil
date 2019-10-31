@@ -1,3 +1,5 @@
+from __future__ import print_function, division
+
 from math import *
 from numpy import *
 
@@ -50,7 +52,7 @@ kEps = 1e-7
 
 def expect( value ):
     if not value:
-        print 'Expect failed!'
+        print( 'Expect failed!' )
         import traceback
         traceback.print_stack()
         
@@ -988,7 +990,7 @@ def closest_distsqr_and_point_and_edge_index_on_line_strip_to_point( line_strip,
         closest_pt = closest_point_on_line_to_point( line_strip[i:i+2], pt, line_is_segment = True )
         return ( mag2( pt - closest_pt ), closest_pt, i )
     
-    return min( [ gen_distsqr_pt_edge( i ) for i in xrange( len( line_strip )-1 ) ], key = lambda el: ( el[0], el[2] ) )
+    return min( [ gen_distsqr_pt_edge( i ) for i in range( len( line_strip )-1 ) ], key = lambda el: ( el[0], el[2] ) )
 
 def closest_distsqr_and_point_and_edge_index_on_line_loop_to_point( line_loop, pt ):
     '''
@@ -1268,15 +1270,15 @@ def print_matlab( arr ):
     N = 1
     if len( arr.shape ) > 1: N = arr.shape[1]
     
-    print '[ ',
+    print( '[ ', end='' )
     count = 0
     for v in arr.ravel():
         if count == N:
-            print '; ',
+            print( '; ', end='' )
             count = 0
-        print '%s ' % (v,),
+        print( '%s ' % (v,), end='' )
         count += 1
-    print ']'
+    print( ']' )
 
 def lsq_ellipse( pts ):
     '''
@@ -1307,7 +1309,7 @@ def lsq_ellipse( pts ):
     
     except linalg.linalg.LinAlgError:
         return None
-    except RuntimeError, e:
+    except RuntimeError as e:
         return None
         
         #print e
@@ -1515,7 +1517,7 @@ def center_of_mass_of_ellipses_intersection( ellipse1, ellipse2, accuracy = 1e-3
         
         #print 'hits:', hits
     
-    if hits == 0: raise RuntimeError, "Ellipses don't intersect"
+    if hits == 0: raise RuntimeError( "Ellipses don't intersect" )
     com *= 1./hits
     return com
 
@@ -1657,3 +1659,84 @@ def line_loop_is_CCW( line_loop ):
         b[0] * c[1] - c[0] * b[1]
         )
     return two_area >= 0.
+
+def angle2D( one, two ):
+    '''
+    Returns the angle in radians [-pi,pi] turned counter-clockwise between vector `one`
+    and vector `two`.
+    In other words, if `one` were to turn counter-clockwise by the returned angle,
+    it would have the same direction as `two`:
+        dir( two ) == rotate2D( dir( one ), angle2D( one, two ) )
+    
+    tested:
+    >>> one = (1,0)
+    >>> two = (0,1)
+    >>> allclose( two, rotate2D( one, angle2D( one, two ) ) )
+    '''
+    
+    one = dir( asfarray( one ) )
+    two = dir( asfarray( two ) )
+    
+    angle = acos( max( -1., min( 1., dot( one,two ) ) ) )
+    if cross_z( one,two ) < 0.:
+        angle = -angle
+    return angle
+
+def cross_z( a,b ):
+    '''
+    Returns the z component of the cross product of vectors a,b.
+    
+    NOTE: tested
+    '''
+    return a[0]*b[1] - a[1]*b[0]
+
+def rotate2D( vec, radians ):
+    '''
+    Returns the 2D vector `vec` rotated by `radians`.
+    '''
+    
+    assert len(vec) == 2
+    assert radians == float(radians)
+    
+    rotated = zeros( 2 )
+    c = cos( radians )
+    s = sin( radians )
+    rotated[0] = c*vec[0] - s*vec[1]
+    rotated[1] = s*vec[0] + c*vec[1]
+    return rotated
+
+def solve_for_fixed_points( points, src0, src1, dst0, dst1 ):
+    '''
+    Given 2d points `src0`, `src1` and `dst0`, `dst1`,
+    finds the 2D transform (uniform scale, rotate, translate)
+    that maps src0 to dst0 and src1 to dst1.
+    Returns 'points', a list of 2d points, with this transform applied.
+    
+    If any parameters have more than two coordinates, only the first two coordinates are used,
+    and 2d coordinates are returned.
+    '''
+    
+    coefs = array((
+        ( src0[0], -src0[1], 1, 0 ),
+        ( src1 [0], -src1 [1], 1, 0 ),
+        ( src0[1],  src0[0], 0, 1 ),
+        ( src1 [1],  src1 [0], 0, 1 )
+        ))
+    rhs = array( (
+        dst0[0],
+        dst1[0],
+        dst0[1],
+        dst1[1]
+        ) )
+    
+    sol = linalg.solve( coefs, rhs )
+    
+    xformed = [
+        (
+        sol[2] + sol[0] * pt[0] - sol[1] * pt[1],
+        sol[3] + sol[1] * pt[0] + sol[0] * pt[1]
+        )
+        for pt in points
+        ]
+    
+    return xformed
