@@ -61,14 +61,14 @@ def closest_distsqr_and_edge_index_and_t_on_line_loop_to_point( line_loop, pt ):
 def test_line_strip_and_loop_distances():
     pt = (0,0)
     line_strip = [ ( 0, -.1 ), ( 1, -.1 ), ( 1, .9 ), ( 0, .9 ) ]
-    print 'pt:', pt
-    print 'line_strip:', line_strip
-    print 'closest_distsqr_and_edge_index_and_t_on_line_strip_to_point():'
-    print closest_distsqr_and_edge_index_and_t_on_line_strip_to_point( line_strip, pt )
+    print('pt:', pt)
+    print('line_strip:', line_strip)
+    print('closest_distsqr_and_edge_index_and_t_on_line_strip_to_point():')
+    print(closest_distsqr_and_edge_index_and_t_on_line_strip_to_point( line_strip, pt ))
     
     ## Interpreted as a line loop, 'line_strip' should pass directly through 'pt'.
-    print 'closest_distsqr_and_edge_index_and_t_on_line_loop_to_point():'
-    print closest_distsqr_and_edge_index_and_t_on_line_loop_to_point( line_strip, pt )
+    print('closest_distsqr_and_edge_index_and_t_on_line_loop_to_point():')
+    print(closest_distsqr_and_edge_index_and_t_on_line_loop_to_point( line_strip, pt ))
 
 def distancesSqr_and_t_to_edges( pts, edges ):
     '''
@@ -174,10 +174,10 @@ pts = asarray( pts )
 edges = [ [ [ u( 0,1 ) for d in range(dim) ], [ u( 0,1 ) for d in range(dim) ] ] for i in xrange( nedges ) ]
 ''' % (dim, npts, nedges)
     
-    print 'repititions:', N
-    print 'dimension:', dim
-    print 'num points:', npts
-    print 'num edges:', nedges
+    print('repititions:', N)
+    print('dimension:', dim)
+    print('num points:', npts)
+    print('num edges:', nedges)
     
     #timeit.Timer( 'print abs( distancesSqr_to_edges( pts, edges ) - distancesSqr_to_edges_Nd( pts, edges ) ).sum(),', setup2d, time.clock ).timeit(100)
     #print 
@@ -186,8 +186,8 @@ edges = [ [ [ u( 0,1 ) for d in range(dim) ], [ u( 0,1 ) for d in range(dim) ] ]
     ## second has an advantage.  I verified this by calling identical functions.
     
     
-    print 'distancesSqr_to_edges:',
-    print timeit.Timer( 'distancesSqr_and_t_to_edges( pts, edges )', setupNd ).repeat(4,N)
+    print('distancesSqr_to_edges:', end=' ')
+    print(timeit.Timer( 'distancesSqr_and_t_to_edges( pts, edges )', setupNd ).repeat(4,N))
 
 def test1():
     pt = [ 0,0 ]
@@ -210,23 +210,23 @@ def test1():
         [ (-.25,0), (.75,0) ],
         ]
     distSqrs, ts = distancesSqr_and_t_to_edges( [ pt ], edges )
-    print 'distSqrs:'
-    print distSqrs
-    print 'ts:'
-    print ts
+    print('distSqrs:')
+    print(distSqrs)
+    print('ts:')
+    print(ts)
     minDistSqr, min_edge_index, min_t = min_distanceSqr_edge_t_to_edges( [ pt ], edges )
-    print 'min_distanceSqr_edge_t_to_edges():', minDistSqr, min_edge_index, min_t
+    print('min_distanceSqr_edge_t_to_edges():', minDistSqr, min_edge_index, min_t)
 
 def test2():
     pts = [(.5, 0.), (.5,1.), (0.,.25), (1.,.25), (0.,0.), (1.,0.), (.3,.3)]
     pts = asarray( pts )
     edges = [[(.25, .25), (.75, .25)], [(.25, .25), (.25, .75)], [(.75, .25), (.75, .75)], [(.25, .75), (.75, .75)]]
     distSqrs, ts = distancesSqr_and_t_to_edges( pts, edges )
-    print 'distSqrs:'
-    print distSqrs
-    print 'ts:'
-    print ts
-    print 'min_distanceSqr_edge_t_to_edges():', min_distanceSqr_edge_t_to_edges( pts, edges )
+    print('distSqrs:')
+    print(distSqrs)
+    print('ts:')
+    print(ts)
+    print('min_distanceSqr_edge_t_to_edges():', min_distanceSqr_edge_t_to_edges( pts, edges ))
 
 def main():
     test1()
