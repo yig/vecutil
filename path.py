@@ -1,3 +1,5 @@
+from __future__ import print_function, division
+
 from numpy import *
 
 def get_point_on_path( t, pts ):
@@ -44,6 +46,58 @@ def get_point_on_path( t, pts ):
     result = pts[ lands ] + t_in_segment * ( pts[ lands + 1 ] - pts[ lands ] )
     
     return result
+
+def get_point_on_path_interpolator( pts ):
+    '''
+    Given:
+        pts: A sequence of N-dimensional points.
+    Returns:
+        A function f such that f(s) returns the normalized, arc-length linear
+        interpolation along the line strip defined by `pts` for s in [0,1].
+            f(0) = pts[0]
+            f(1) = pts[-1]
+    
+    This is similar to `get_point_on_path()`, but uses scipy and returns a function
+    that can be called many times.
+    
+    >>> pts = [ (0,0), (1,1), (3,0) ]
+    >>> f = get_point_on_path_interpolator( pts )
+    >>> f(0)
+    array([0., 0.])
+    >>> f(1)
+    array([3., 0.])
+    >>> f(.5)
+    array([1.36754447, 0.81622777])
+    '''
+    
+    import scipy.interpolate
+    
+    ## NumPy array
+    pts = asfarray( pts )
+    
+    ## Get all segment lengths
+    lengths = sqrt( ( ( pts[1:] - pts[:-1] )**2 ).sum( axis = 1 ) )
+    
+    ## Get the cumulative length along the path
+    cumlengths = cumsum( lengths )
+    
+    ## Normalize the lengths
+    cumlengths /= cumlengths[-1]
+    
+    ## Prepend a zero, because the pts[0] has travelled 0 distance.
+    Xs = [0.] + list(cumlengths)
+    Ys = pts
+    
+    ## Return scipy's interpolator.
+    arcsample = scipy.interpolate.interp1d(
+        Xs, Ys,
+        kind = 'linear',
+        axis = 0,
+        fill_value = (pts[0], pts[-1]),
+        bounds_error = False,
+        assume_sorted = True
+        )
+    return arcsample
 
 def compute_largest_minimum_distance_between_point_sequences( points1, points2 ):
     '''
@@ -108,7 +162,7 @@ def test_all_distances():
     D2 = all_distances( points1, points2 )
     entries = where( D2 < threshold**2 )
     for i,j in zip( *entries ):
-        print i,j, D2[i,j]
+        print( i,j, D2[i,j] )
 
 def main():
     test_all_distances()
